@@ -1,5 +1,7 @@
 # QuizPlay
 
+**Live demo:** https://akshaytripathiai.github.io/QuizPlay/
+
 A timed multiple-choice quiz about React, built with React.
 
 Built as a practice project while learning React.

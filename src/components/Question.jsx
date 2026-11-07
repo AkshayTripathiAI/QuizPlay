@@ -1,44 +1,53 @@
+import { useEffect, useRef, useState } from "react";
 import QuestionTimer from "./QuestionTimer";
-import Answer from "./Answers";
-import { useState } from "react";
+import Answers from "./Answers";
 import QUESTIONS from "../questions";
-export default function Question({
-  // key,this prop is must used by react not by us
-  index,
-  onSelectAnswer,
-  onSkipAnswer,
-  mode,
-}) {
+
+const ANSWER_TIME = 10000;
+const SELECTED_TIME = 1000;
+const FEEDBACK_TIME = 2000;
+
+export default function Question({ index, onSelectAnswer, onSkipAnswer }) {
   const [answer, setAnswer] = useState({
     selectedAnswer: "",
     isCorrect: null,
   });
+  const pendingTimers = useRef([]);
 
-  let timer = 10000;
+  // Clear the reveal/advance timers if the question unmounts early.
+  useEffect(() => () => pendingTimers.current.forEach(clearTimeout), []);
+
+  let timer = ANSWER_TIME;
 
   if (answer.selectedAnswer) {
-    timer = 1000;
+    timer = SELECTED_TIME;
   }
   if (answer.isCorrect !== null) {
-    timer = 2000;
+    timer = FEEDBACK_TIME;
   }
 
-  function handleSelectAnswer(answer) {
+  function handleSelectAnswer(selected) {
+    if (answer.selectedAnswer) return; // ignore double clicks / key presses
+
     setAnswer({
-      selectedAnswer: answer,
+      selectedAnswer: selected,
       isCorrect: null,
     });
 
-    setTimeout(() => {
-      setAnswer({
-        selectedAnswer: answer,
-        isCorrect: QUESTIONS[index].answers[0] === answer,
-      });
-
+    pendingTimers.current.push(
       setTimeout(() => {
-        onSelectAnswer(answer);
-      }, 2000);
-    }, 1000);
+        setAnswer({
+          selectedAnswer: selected,
+          isCorrect: QUESTIONS[index].answers[0] === selected,
+        });
+
+        pendingTimers.current.push(
+          setTimeout(() => {
+            onSelectAnswer(selected);
+          }, FEEDBACK_TIME),
+        );
+      }, SELECTED_TIME),
+    );
   }
 
   let answerState = "";
@@ -48,8 +57,12 @@ export default function Question({
   } else if (answer.selectedAnswer) {
     answerState = "answered";
   }
+
   return (
-    <div id="questions">
+    <div id="question">
+      <p id="question-overview">
+        Question {index + 1} of {QUESTIONS.length}
+      </p>
       <QuestionTimer
         key={timer}
         timeout={timer}
@@ -57,12 +70,20 @@ export default function Question({
         mode={answerState}
       />
       <h2>{QUESTIONS[index].text}</h2>
-      <Answer
+      <Answers
         answers={QUESTIONS[index].answers}
         selectedAnswer={answer.selectedAnswer}
         answerState={answerState}
         onSelect={handleSelectAnswer}
       />
+      {answerState === "" && (
+        <p id="skip-action">
+          <button type="button" onClick={onSkipAnswer}>
+            Skip question
+          </button>
+        </p>
+      )}
+      <p className="keyboard-hint">Tip: press 1-4 to answer</p>
     </div>
   );
 }

@@ -1,25 +1,28 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState, useEffect } from "react";
 
 export default function QuestionTimer({ timeout, onTimeout, mode }) {
-  const [remainningTime, setRemainningTime] = useState(timeout);
+  const [remainingTime, setRemainingTime] = useState(timeout);
 
   useEffect(() => {
-    console.log("SETTING TIMEOUT");
+    // Only schedule a timeout when there is something to call
+    // (setTimeout(null) would try to evaluate the string "null").
+    if (!onTimeout) return;
     const timer = setTimeout(onTimeout, timeout);
 
-    //clean up function
+    // cleanup function
     return () => {
       clearTimeout(timer);
     };
   }, [timeout, onTimeout]);
 
   useEffect(() => {
-    console.log("SETTING INTERVAL");
     const interval = setInterval(() => {
-      setRemainningTime((prevRemainingTime) => prevRemainingTime - 100);
+      setRemainingTime((prevRemainingTime) =>
+        Math.max(prevRemainingTime - 100, 0),
+      );
     }, 100);
 
-    //clean up function
+    // cleanup function
     return () => {
       clearInterval(interval);
     };
@@ -30,7 +33,8 @@ export default function QuestionTimer({ timeout, onTimeout, mode }) {
       className={mode}
       id="question-time"
       max={timeout}
-      value={remainningTime}
+      value={remainingTime}
+      aria-label="Time remaining"
     />
   );
 }

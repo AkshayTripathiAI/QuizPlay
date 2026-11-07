@@ -8,15 +8,19 @@ Built as a practice project while learning React.
 
 ## Features
 
-- 7 questions about React, with the answers shuffled for each question
-- 10-second timer per question shown as a progress bar; unanswered questions are skipped automatically
+- 7 questions about React, with the answers shuffled (Fisher-Yates) for each question
+- "Question X of 7" indicator and a 10-second timer per question shown as a progress bar; unanswered questions are skipped automatically, or skip manually
+- Answer with the mouse or press 1-4 on the keyboard
 - The selected answer is highlighted, then marked correct or wrong before moving on
-- Summary screen with the percentage of skipped, correct and incorrect answers, plus a per-question review
+- Summary screen with your score, the percentage of skipped, correct and incorrect answers, and a per-question review that shows the correct answer for anything you missed
+- Best score saved in `localStorage`, and a "Play again" button to restart
+- Responsive layout for phones
 
 ## Tech stack
 
 - React 18
 - Vite 4
+- Deployed to GitHub Pages from the `gh-pages` branch (`base: '/QuizPlay/'` in `vite.config.js`)
 
 ## Getting started
 
